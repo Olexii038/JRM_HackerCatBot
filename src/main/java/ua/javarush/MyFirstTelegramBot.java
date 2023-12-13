@@ -9,6 +9,9 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +46,7 @@ public class MyFirstTelegramBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         Long chatId = getChatId(update);
 
+        try {
         if (update.hasMessage()) {
             if (isTextEqual(update, "/start")) {
                 sendMessage(chatId, STEP_1_TEXT, Map.of("Злам холодильника", BUTTON1));
@@ -87,6 +91,9 @@ public class MyFirstTelegramBot extends TelegramLongPollingBot {
             if (isButtonPressed(update, BUTTON8) && getGlories(chatId) == 230) {
                 sendMessage(chatId, FINAL_TEXT, null);
             }
+        } }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
         }
 
         /*
