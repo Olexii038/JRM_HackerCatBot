@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TelegramBotUtils {
     private static final Map<Long, Integer> gloryStorage = new HashMap<>();
@@ -32,7 +34,8 @@ public class TelegramBotUtils {
 
     public static SendMessage createMessage(Long chatId, String text) {
         SendMessage message = new SendMessage();
-        message.setText(new String(text.getBytes(), StandardCharsets.UTF_8));
+        //message.setText(new String(text.getBytes(), StandardCharsets.UTF_8));
+        message.setText(text);
         message.setParseMode("markdown");
         message.setChatId(chatId);
         return message;
@@ -53,7 +56,8 @@ public class TelegramBotUtils {
             String buttonValue = buttons.get(buttonName);
 
             InlineKeyboardButton button = new InlineKeyboardButton();
-            button.setText(new String(buttonName.getBytes(), StandardCharsets.UTF_8));
+            //button.setText(new String(buttonName.getBytes(), StandardCharsets.UTF_8));
+            button.setText(buttonName);
             button.setCallbackData(buttonValue);
 
             keyboard.add(List.of(button));
