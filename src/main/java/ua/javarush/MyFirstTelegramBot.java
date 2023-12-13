@@ -20,6 +20,15 @@ import static ua.javarush.TelegramBotUtils.*;
 public class MyFirstTelegramBot extends TelegramLongPollingBot {
     private Map<Long, Data> data = new HashMap<>();
 
+    private final String BUTTON1 = "step1Button";
+    private final String BUTTON2 = "tep2Button";
+    private final String BUTTON3 = "step3Button";
+    private final String BUTTON4 = "step4Button";
+    private final String BUTTON5 = "step5Button";
+    private final String BUTTON6 = "step6Button";
+    private final String BUTTON7 = "step7Button";
+    private final String BUTTON8 = "step8Button";
+
     @Override
     public String getBotUsername() {
         return "hacker_cat_038_bot";
@@ -33,62 +42,85 @@ public class MyFirstTelegramBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         Long chatId = getChatId(update);
+
+        if (update.hasMessage()) {
+            if (isTextEqual(update, "/start")) {
+                sendMessage(chatId, STEP_1_TEXT, Map.of("Злам холодильника", BUTTON1));
+            }
+        }
+
+        if (update.hasCallbackQuery()) {
+            if (isButtonPressed(update, BUTTON1) && getGlories(chatId) == 0) {
+                sendMessageUpdateGlories(chatId, STEP_2_TEXT, Map.of("Взяти сосиску! + 20 слави", BUTTON2,
+                        "Взяти рибку! + 20 слави", BUTTON2,
+                        "Скинути банку з огірками! + 20 слави", BUTTON2), 20);
+            }
+
+            if (isButtonPressed(update, BUTTON2) && getGlories(chatId) == 20) {
+                sendMessageUpdateGlories(chatId, STEP_3_TEXT, Map.of("Злам робота-пилососа", BUTTON3), 20);
+            }
+
+            if (isButtonPressed(update, BUTTON3) && getGlories(chatId) == 40) {
+                sendMessageUpdateGlories(chatId, STEP_4_TEXT, Map.of("Відправити робопилосос за їжею! +30 слави", BUTTON4,
+                        "Проїхатися на робопилососі! +30 слави", BUTTON4,
+                        "Тікати від робопилососа! +30 слави", BUTTON4), 30);
+            }
+
+            if (isButtonPressed(update, BUTTON4) && getGlories(chatId) == 70) {
+                sendMessageUpdateGlories(chatId, STEP_5_TEXT, Map.of("Одягнути та ввімкнути GoPro!", BUTTON5), 30);
+            }
+
+            if (isButtonPressed(update, BUTTON5) && getGlories(chatId) == 100) {
+                sendMessageUpdateGlories(chatId, STEP_6_TEXT, Map.of("Бігати дахами, знімати на GoPro! +40 слави", BUTTON6,
+                        "З GoPro нападати на інших котів із засідки! +40 слави", BUTTON6,
+                        "З GoPro нападати на собак із засідки! +40 слави", BUTTON6), 40);
+            }
+
+            if (isButtonPressed(update, BUTTON6) && getGlories(chatId) == 140) {
+                sendMessageUpdateGlories(chatId, STEP_7_TEXT, Map.of("Злам пароля", BUTTON7), 40);
+            }
+
+            if (isButtonPressed(update, BUTTON7) && getGlories(chatId) == 180) {
+                sendMessageUpdateGlories(chatId, STEP_8_TEXT, Map.of("Вийти на подвір'я", BUTTON8), 50);
+            }
+
+            if (isButtonPressed(update, BUTTON8) && getGlories(chatId) == 230) {
+                sendMessage(chatId, FINAL_TEXT, null);
+            }
+        }
+
+        /*
         if (chatId == null) return;
 
         Data userData = data.get(chatId);
         if (userData == null) {
             userData = new Data(chatId);
             data.put(chatId, userData);
-        }
+        }*/
 
-        if (update.hasMessage()) {
-            Message inputMessage = update.getMessage();
-            String inputText = inputMessage.getText();
+    }
 
-            String text = "";
+    private boolean isTextEqual(Update update, String text) {
+        return update.getMessage().getText().equals(text);
+    }
 
-            if (userData.name == null) {
-                if (inputText.equals("/start")) {
-                    text = "Привіт, як тебе звати?";
-                    userData.question = true;
-                } else if (userData.question) {
-                    String name;
-
-                    if (inputText.toLowerCase().contains("мене звуть")) {
-                        name = inputText.toLowerCase().replace("мене звуть", "").strip();
-                    } else if (inputText.toLowerCase().contains("мене звати")) {
-                        name = inputText.toLowerCase().replace("мене звати", "").strip();
-                    } else if (inputText.toLowerCase().contains("моє ім'я")) {
-                        name = inputText.toLowerCase().replace("моє ім'я", "").strip();
-                    } else return;
-
-                    name = getFormattedName(name);
-
-                    userData.name = name;
-                    userData.question = false;
-
-                    text = "Радий знайомству, " + name + ", я - *Кіт*";
-                }
-            } else {
-                if (inputText.equals("/forget_me")) {
-                    data.remove(chatId);
-                    text = "Done";
-                } else {
-                    text = "Hi, " + userData.name;
-                }
-            }
-
-            if (!text.equals("")) {
-                SendMessage message = createMessage(chatId, text);
-
-                sendApiMethodAsync(message);
-            }
-        }
+    private boolean isButtonPressed(Update update, String buttonId) {
+        return update.getCallbackQuery().getData().equals(buttonId);
     }
 
     public static void main(String[] args) throws TelegramApiException {
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
         telegramBotsApi.registerBot(new MyFirstTelegramBot());
+    }
+
+    private void sendMessageUpdateGlories(Long chatId, String text, Map<String, String> buttons, int glories) {
+        addGlories(chatId, glories);
+        sendMessage(chatId, text, buttons);
+    }
+
+    private void sendMessage(Long chatId, String text, Map<String, String> buttons) {
+        SendMessage message = buttons == null ? createMessage(chatId, text) : createMessage(chatId, text, buttons);
+        sendApiMethodAsync(message);
     }
 
     private String getFormattedName(String name) {
